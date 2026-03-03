@@ -1,0 +1,88 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+@font-face {
+  font-family: DepartureNerd;
+  src: url("./fonts/DepartureMono/DepartureMonoNerdFontPropo-Regular.otf")
+    format("opentype");
+}
+
+body {
+  background-color: black;
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+}
+
+#display {
+  font-family: DepartureNerd;
+  background-color: #0b0e14;
+  height: 10cqh;
+  min-height: 69px;
+  margin: 12px 2px;
+  border-radius: 4px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+#display-top {
+  height: 50%;
+  max-width: 100%;
+  font-size: 3.2cqh;
+  color: gray;
+  font-weight: 100;
+  white-space: nowrap;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+#display-bottom {
+  height: 50%;
+  font-size: 4.2cqh;
+  font-weight: 900;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+#calc-container {
+  display: flex;
+  flex-direction: column;
+  width: 40%;
+  min-width: 282px;
+}
+
+#button-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 8px;
+}
+
+.button-container {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.calc-button {
+  font-family: DepartureNerd;
+  background-color: #0b0e14;
+  color: white;
+  border: outset 2px #0b0e1480;
+  cursor: pointer;
+  font-size: clamp(12px, 3cqw, 48px);
+  width: 100%;
+  border-radius: 8px 8px 18px 18px;
+  aspect-ratio: 1.4 / 1;
+}
