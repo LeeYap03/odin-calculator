@@ -1,5 +1,6 @@
 const buttonGrid = document.querySelector("#button-grid");
-const displayTop = document.querySelector("#display-top");
+const inputArea = document.querySelector("#display-top");
+const outputArea = document.querySelector("#display-bottom");
 
 buttonGrid.addEventListener("click", (event) => {
   // Make sure user is clicking a button within the buttonGrid
@@ -12,37 +13,96 @@ buttonGrid.addEventListener("click", (event) => {
   handleClick(buttonID);
 });
 
+// Handle inputs
 function handleClick(id) {
   switch (id) {
     case "btn-clr":
-      displayTop.textContent = "";
+      inputArea.textContent = "";
       break;
     case "btn-del":
-      displayTop.textContent = displayTop.textContent.slice(0, -1);
+      inputArea.textContent = inputArea.textContent.slice(0, -1);
       break;
     case "btn-eql":
-      console.log("Calculate result");
+      const tokens = tokenize();
       break;
     case "btn-add":
-      displayTop.textContent += "+";
+      inputArea.textContent += "+";
       break;
     case "btn-subt":
-      displayTop.textContent += "-";
+      inputArea.textContent += "-";
       break;
     case "btn-mult":
-      displayTop.textContent += "";
+      inputArea.textContent += "*";
       break;
     case "btn-div":
-      displayTop.textContent += "";
+      inputArea.textContent += "/";
       break;
     case "btn-pwr":
-      displayTop.textContent += "^";
+      inputArea.textContent += "\^";
       break;
     case "btn-dcml":
-      displayTop.textContent += ".";
+      inputArea.textContent += ".";
       break;
     default:
       const value = id.replace("btn-", "");
-      displayTop.textContent += value;
+      inputArea.textContent += value;
   }
+}
+
+// Tokenize input to be an array of numbers and operators
+function tokenize() {
+  const input = inputArea.textContent.replace(/\s+/g, "");
+  let tokens = [];
+
+  for (i = 0; i < input.length; i++) {
+    let char = input[i];
+    let prevToken = tokens[tokens.length - 1];
+
+    let isNumber = /[0-9\.]/.test(char);
+    let isOperator = "+-*/^".includes(char);
+    let isNegativeSign =
+      char == "-" && (!prevToken || "+-/*^".includes(prevToken));
+
+    if (tokens.length === 0 && isOperator) {
+      outputArea.textContent = "Syntax error!";
+      throw new Error(`Syntax Error: Cannot start with '${char}' operator`);
+    }
+
+    if (isNumber || isNegativeSign) {
+      let num = char;
+      if (char === ".") {
+        // If num starts with decimal point
+        num = "0.";
+      }
+      let hasDecimal = char === ".";
+
+      // While the next char is a number
+      while (i + 1 < input.length && /[0-9\.]/.test(input[i + 1])) {
+        nextChar = input[++i];
+
+        if (nextChar === ".") {
+          if (hasDecimal) {
+            outputArea.textContent = "Syntax error!";
+            throw new Error("Syntax Error: Multiple decimal points");
+          }
+          hasDecimal = true;
+        }
+
+        num += nextChar;
+      }
+      tokens.push(num);
+    } else if (isOperator) {
+      if (prevToken && "+-/*^".includes(prevToken)) {
+        outputArea.textContent = "Syntax error!";
+        throw new Error(`Syntax Error: '${prevToken}${char}'`);
+      }
+      tokens.push(char);
+    }
+  }
+  // Check if last token is an operator
+  if ("+-*/^".includes(tokens[tokens.length - 1])) {
+    outputArea.textContent = "Incomplete Expression";
+    throw new Error("Incomplete expression");
+  }
+  console.log(tokens);
 }
