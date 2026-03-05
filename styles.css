@@ -48,12 +48,28 @@ body {
 
 #display-bottom {
   height: 50%;
+  width: 100%;
   font-size: 4.2cqh;
   text-align: right;
   font-weight: 900;
   overflow: hidden;
   display: flex;
   justify-content: flex-end;
+  cursor: pointer;
+}
+
+#display-bottom #copy-tooltip {
+  display: none;
+  font-size: 3cqh;
+  align-self: center;
+}
+
+#display-bottom:hover #display-answer {
+  display: none;
+}
+
+#display-bottom:hover #copy-tooltip {
+  display: inline;
 }
 
 #calc-container {

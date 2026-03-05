@@ -1,6 +1,8 @@
 const buttonGrid = document.querySelector("#button-grid");
 const inputArea = document.querySelector("#display-top");
 const outputArea = document.querySelector("#display-bottom");
+const outputAnswer = document.querySelector("#display-answer");
+const tooltip = document.querySelector("#copy-tooltip");
 
 buttonGrid.addEventListener("click", (event) => {
   // Make sure user is clicking a button within the buttonGrid
@@ -13,11 +15,11 @@ buttonGrid.addEventListener("click", (event) => {
   handleClick(buttonID);
 });
 
-// Handle inputs
 function handleClick(id) {
   switch (id) {
     case "btn-clr":
       inputArea.textContent = "";
+      outputAnswer.textContent = 0;
       break;
     case "btn-del":
       inputArea.textContent = inputArea.textContent.slice(0, -1);
@@ -27,7 +29,7 @@ function handleClick(id) {
       const postfixTokens = toPostfix(tokens);
       const answer = calculate(postfixTokens);
 
-      outputArea.textContent = answer;
+      outputAnswer.textContent = answer;
       break;
     case "btn-add":
       inputArea.textContent += "+";
@@ -183,4 +185,15 @@ function calculate(postfixTokens) {
   }
 
   return stack[0];
+}
+
+function copyToClipboard() {
+  const text = outputAnswer.textContent.trim();
+  navigator.clipboard
+    .writeText(text)
+    .then(() => (tooltip.textContent = "Copied!"));
+
+  setTimeout(() => {
+    tooltip.textContent = "Copy to Clipboard";
+  }, 1000);
 }
