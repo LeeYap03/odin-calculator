@@ -25,6 +25,9 @@ function handleClick(id) {
     case "btn-eql":
       const tokens = tokenize();
       const postfixTokens = toPostfix(tokens);
+      const answer = calculate(postfixTokens);
+
+      outputArea.textContent = answer;
       break;
     case "btn-add":
       inputArea.textContent += "+";
@@ -106,7 +109,6 @@ function tokenize() {
     throw new Error("Incomplete expression");
   }
 
-  console.log("Input Tokens: ", tokens);
   return tokens;
 }
 
@@ -126,6 +128,7 @@ function toPostfix(tokens) {
       output.push(token);
     }
 
+    // Loop through the operands stack to pop in pemdas order
     if ("+-*/^".includes(token)) {
       while (stack.length > 0) {
         if (precedence[stack[stack.length - 1]] >= precedence[token]) {
@@ -141,9 +144,43 @@ function toPostfix(tokens) {
     }
   }
 
+  // Flush the rest of the operand stack
   while (stack.length > 0) {
     output.push(stack.pop());
   }
 
   return output;
+}
+
+function calculate(postfixTokens) {
+  const stack = [];
+
+  for (const token of postfixTokens) {
+    if (!isNaN(token)) {
+      stack.push(Number(token));
+    } else {
+      const b = stack.pop();
+      const a = stack.pop();
+
+      switch (token) {
+        case "+":
+          stack.push(a + b);
+          break;
+        case "-":
+          stack.push(a - b);
+          break;
+        case "*":
+          stack.push(a * b);
+          break;
+        case "/":
+          stack.push(a / b);
+          break;
+        case "^":
+          stack.push(Math.pow(a, b));
+          break;
+      }
+    }
+  }
+
+  return stack[0];
 }
