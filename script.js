@@ -24,6 +24,7 @@ function handleClick(id) {
       break;
     case "btn-eql":
       const tokens = tokenize();
+      const postfixTokens = toPostfix(tokens);
       break;
     case "btn-add":
       inputArea.textContent += "+";
@@ -63,7 +64,7 @@ function tokenize() {
     let isNegativeSign =
       char == "-" && (!prevToken || "+-/*^".includes(prevToken));
 
-    if (tokens.length === 0 && isOperator) {
+    if (tokens.length === 0 && isOperator && !isNegativeSign) {
       outputArea.textContent = "Syntax error!";
       throw new Error(`Syntax Error: Cannot start with '${char}' operator`);
     }
@@ -104,5 +105,45 @@ function tokenize() {
     outputArea.textContent = "Incomplete Expression";
     throw new Error("Incomplete expression");
   }
-  console.log(tokens);
+
+  console.log("Input Tokens: ", tokens);
+  return tokens;
+}
+
+function toPostfix(tokens) {
+  const output = [];
+  const stack = [];
+  const precedence = {
+    "+": 1,
+    "-": 1,
+    "*": 2,
+    "/": 2,
+    "^": 3,
+  };
+
+  for (const token of tokens) {
+    if (!isNaN(token)) {
+      output.push(token);
+    }
+
+    if ("+-*/^".includes(token)) {
+      while (stack.length > 0) {
+        if (precedence[stack[stack.length - 1]] >= precedence[token]) {
+          if (token === "^" && precedence[stack[stack.length - 1]] == 3) {
+            break;
+          }
+          output.push(stack.pop());
+        } else {
+          break;
+        }
+      }
+      stack.push(token);
+    }
+  }
+
+  while (stack.length > 0) {
+    output.push(stack.pop());
+  }
+
+  return output;
 }
