@@ -8,6 +8,7 @@ let answerDisplayed = false;
 document.addEventListener("keydown", (event) => {
   if ("1234567890+-*/^%.".includes(event.key)) {
     inputArea.textContent += event.key;
+    console.log(event.key);
   } else if (event.key === "Backspace") {
     handleClick("btn-del");
   } else if (event.key.toLowerCase() === "c") {
@@ -34,10 +35,14 @@ function handleClick(id) {
     "btn-del": () =>
       (inputArea.textContent = inputArea.textContent.slice(0, -1)),
     "btn-eql": () => {
-      const tokens = tokenize();
-      const postfixTokens = toPostfix(tokens);
-      const answer = calculate(postfixTokens);
-      outputAnswer.textContent = answer;
+      try {
+        const tokens = tokenize();
+        const postfixTokens = toPostfix(tokens);
+        const answer = calculate(postfixTokens);
+        outputAnswer.textContent = answer;
+      } catch (error) {
+        console.log(error);
+      }
     },
   };
 
@@ -85,7 +90,7 @@ function tokenize() {
       char == "-" && (!prevToken || "+-/*^%".includes(prevToken));
 
     if (tokens.length === 0 && isOperator && !isNegativeSign) {
-      outputArea.textContent = "Syntax error!";
+      outputAnswer.textContent = "Syntax error!";
       throw new Error(`Syntax Error: Cannot start with '${char}' operator`);
     }
 
@@ -103,7 +108,7 @@ function tokenize() {
 
         if (nextChar === ".") {
           if (hasDecimal) {
-            outputArea.textContent = "Syntax error!";
+            outputAnswer.textContent = "Syntax error!";
             throw new Error("Syntax Error: Multiple decimal points");
           }
           hasDecimal = true;
@@ -114,7 +119,7 @@ function tokenize() {
       tokens.push(num);
     } else if (isOperator) {
       if (prevToken && "+-/*^%".includes(prevToken)) {
-        outputArea.textContent = "Syntax error!";
+        outputAnswer.textContent = "Syntax error!";
         throw new Error(`Syntax Error: '${prevToken}${char}'`);
       }
       tokens.push(char);
@@ -122,7 +127,7 @@ function tokenize() {
   }
   // Check if last token is an operator
   if ("+-*/^%".includes(tokens[tokens.length - 1])) {
-    outputArea.textContent = "Incomplete Expression";
+    outputAnswer.textContent = "Incomplete Expression";
     throw new Error("Incomplete expression");
   }
 
