@@ -104,3 +104,17 @@ body {
   border-radius: 8px 8px 18px 18px;
   aspect-ratio: 1.4 / 1;
 }
+
+.calc-button:hover {
+  background-color: #1a1f29;
+  border-color: #3d4455;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.calc-button:active {
+  transform: translateY(1px) scale(0.96);
+  border-style: inset;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  filter: brightness(0.8);
+}
