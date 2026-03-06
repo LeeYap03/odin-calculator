@@ -3,6 +3,19 @@ const inputArea = document.querySelector("#display-top");
 const outputArea = document.querySelector("#display-bottom");
 const outputAnswer = document.querySelector("#display-answer");
 const tooltip = document.querySelector("#copy-tooltip");
+let answerDisplayed = false;
+
+document.addEventListener("keydown", (event) => {
+  if ("1234567890+-*/^%.".includes(event.key)) {
+    inputArea.textContent += event.key;
+  } else if (event.key === "Backspace") {
+    handleClick("btn-del");
+  } else if (event.key.toLowerCase() === "c") {
+    handleClick("btn-clr");
+  } else if (event.key === "=") {
+    handleClick("btn-eql");
+  }
+});
 
 buttonGrid.addEventListener("click", (event) => {
   // Make sure user is clicking a button within the buttonGrid
@@ -16,43 +29,45 @@ buttonGrid.addEventListener("click", (event) => {
 });
 
 function handleClick(id) {
-  switch (id) {
-    case "btn-clr":
-      inputArea.textContent = "";
-      outputAnswer.textContent = 0;
-      break;
-    case "btn-del":
-      inputArea.textContent = inputArea.textContent.slice(0, -1);
-      break;
-    case "btn-eql":
+  const actions = {
+    "btn-clr": () => clear(),
+    "btn-del": () =>
+      (inputArea.textContent = inputArea.textContent.slice(0, -1)),
+    "btn-eql": () => {
       const tokens = tokenize();
       const postfixTokens = toPostfix(tokens);
       const answer = calculate(postfixTokens);
-
       outputAnswer.textContent = answer;
-      break;
-    case "btn-add":
-      inputArea.textContent += "+";
-      break;
-    case "btn-subt":
-      inputArea.textContent += "-";
-      break;
-    case "btn-mult":
-      inputArea.textContent += "*";
-      break;
-    case "btn-div":
-      inputArea.textContent += "/";
-      break;
-    case "btn-pwr":
-      inputArea.textContent += "\^";
-      break;
-    case "btn-dcml":
-      inputArea.textContent += ".";
-      break;
-    default:
-      const value = id.replace("btn-", "");
-      inputArea.textContent += value;
+    },
+  };
+
+  const symbols = {
+    "btn-add": "+",
+    "btn-subt": "-",
+    "btn-mult": "*",
+    "btn-div": "/",
+    "btn-pwr": "^",
+    "btn-perc": "%",
+    "btn-dcml": ".",
+  };
+
+  if (actions[id]) {
+    actions[id]();
+  } else if (symbols[id]) {
+    inputArea.textContent += symbols[id];
+    answerDisplayed = false;
+  } else {
+    if (answerDisplayed) {
+      clear();
+      answerDisplayed = false;
+    }
+    inputArea.textContent += id.replace("btn-", "");
   }
+}
+
+function clear() {
+  inputArea.textContent = "";
+  outputAnswer.textContent = 0;
 }
 
 // Tokenize input to be an array of numbers and operators
@@ -65,9 +80,9 @@ function tokenize() {
     let prevToken = tokens[tokens.length - 1];
 
     let isNumber = /[0-9\.]/.test(char);
-    let isOperator = "+-*/^".includes(char);
+    let isOperator = "+-*/^%".includes(char);
     let isNegativeSign =
-      char == "-" && (!prevToken || "+-/*^".includes(prevToken));
+      char == "-" && (!prevToken || "+-/*^%".includes(prevToken));
 
     if (tokens.length === 0 && isOperator && !isNegativeSign) {
       outputArea.textContent = "Syntax error!";
@@ -98,7 +113,7 @@ function tokenize() {
       }
       tokens.push(num);
     } else if (isOperator) {
-      if (prevToken && "+-/*^".includes(prevToken)) {
+      if (prevToken && "+-/*^%".includes(prevToken)) {
         outputArea.textContent = "Syntax error!";
         throw new Error(`Syntax Error: '${prevToken}${char}'`);
       }
@@ -106,7 +121,7 @@ function tokenize() {
     }
   }
   // Check if last token is an operator
-  if ("+-*/^".includes(tokens[tokens.length - 1])) {
+  if ("+-*/^%".includes(tokens[tokens.length - 1])) {
     outputArea.textContent = "Incomplete Expression";
     throw new Error("Incomplete expression");
   }
@@ -122,6 +137,7 @@ function toPostfix(tokens) {
     "-": 1,
     "*": 2,
     "/": 2,
+    "%": 2,
     "^": 3,
   };
 
@@ -131,7 +147,7 @@ function toPostfix(tokens) {
     }
 
     // Loop through the operands stack to pop in pemdas order
-    if ("+-*/^".includes(token)) {
+    if ("+-*/^%".includes(token)) {
       while (stack.length > 0) {
         if (precedence[stack[stack.length - 1]] >= precedence[token]) {
           if (token === "^" && precedence[stack[stack.length - 1]] == 3) {
@@ -177,6 +193,9 @@ function calculate(postfixTokens) {
         case "/":
           stack.push(a / b);
           break;
+        case "%":
+          stack.push(a % b);
+          break;
         case "^":
           stack.push(Math.pow(a, b));
           break;
@@ -184,6 +203,7 @@ function calculate(postfixTokens) {
     }
   }
 
+  answerDisplayed = true;
   return stack[0];
 }
 
